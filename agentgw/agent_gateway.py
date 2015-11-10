@@ -63,7 +63,7 @@ def get_agents():
     """
         returns the list of bidders
     """
-    return '%s' % bidders.keys()
+    return '%s\n' % bidders.keys()
 
 @app.post('/v1/agents/<name>/config')
 @app.get('/v1/agents/<name>/config')
@@ -346,7 +346,7 @@ class application:
         global log_base_path
         global bidders_config_base_path
 
-        exec_base_path   = os.path.join(BASE_PATH, 'build/x86_64/bin')
+        exec_base_path   = os.path.join(BASE_PATH, 'bin')
         config_base_path = BASE_PATH
         log_base_path    = os.path.join(BASE_PATH, 'logs')
         bidders_config_base_path = os.path.join(os.getcwd(), json_path)
