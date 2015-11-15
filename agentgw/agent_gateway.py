@@ -20,7 +20,7 @@ BASE_PATH           = None
 pickle_path = '.bidders'
 json_path   = '.config'
 
-# agent base path 
+# agent base path
 exec_base_path   = None
 config_base_path = None
 log_base_path    = None
@@ -28,7 +28,7 @@ bidders_config_base_path = None
 
 # set up logging
 logging.basicConfig(filename='agent_gateway.log',
-        format='%(asctime)-15s %(levelname)s %(message)s', 
+        format='%(asctime)-15s %(levelname)s %(message)s',
         level=logging.DEBUG)
 logger = logging.getLogger('agent_gateway')
 
@@ -45,16 +45,16 @@ def map_and_redirect(uri, name):
         otherwise returns the json result code
     """
     try :
-        # try to map the name to the internal config name     
+        # try to map the name to the internal config name
         location = urljoin(
-            AGENT_CONFIG_SERVER, 
+            AGENT_CONFIG_SERVER,
             uri % bidders[name]['agent_conf_name'])
     except :
         return  {
                 'resultCode'        :    1,
                 'resultDescription' :   'unable to map %s' % name
                 }
-        raise HTTPResponse(body=json.dumps(result), status=404, 
+        raise HTTPResponse(body=json.dumps(result), status=404,
                 Content_Type='application/json')
     raise HTTPResponse("", status=302, Location=location)
 
@@ -81,13 +81,13 @@ def heartbeat(name):
         on /v1/agents/<name>/heartbeat for the given name
     """
     return map_and_redirect('/v1/agents/%s/heartbeat', name)
-    
+
 @app.get('/v1/agents/all')
 def get_all():
     """
         redirects the call to the agent configuration service
         on /v1/agents/all
-    """     
+    """
     location = urljoin(AGENT_CONFIG_SERVER, '/v1/agents/all')
     raise HTTPResponse("", status=302, Location=location)
 
@@ -95,7 +95,7 @@ def get_all():
 def start_bidder(name):
     """
         Starts up a bidder using as the instance parameters
-        the arguments passed in the query string 
+        the arguments passed in the query string
     """
     global _process_id
     result = {
@@ -105,25 +105,25 @@ def start_bidder(name):
 
     if name in bidders :
         result['resultCode'] = 1
-        result['resultDescription'] = 'agent already started'    
-        raise HTTPResponse(body=json.dumps(result), status=500, 
+        result['resultDescription'] = 'agent already started'
+        raise HTTPResponse(body=json.dumps(result), status=500,
                 Content_Type='application/json')
     else :
         bidder = {}
 
     # save the executable name and external name
     bidder['bidder_name'] = name
-    bidder['executable'] = request.query['executable']  
+    bidder['executable'] = request.query['executable']
     # save the params
     escape = lambda x : '"%s"' % x
     bidder['params'] = {
-         k:escape(v) for k,v in request.query.iteritems() 
-            if k not in ('executable', ) 
+         k:escape(v) for k,v in request.query.iteritems()
+            if k not in ('executable', )
     }
-    
+
     # create a file with the json configuration
     conf_file_name = os.path.join(
-        bidders_config_base_path, '%s.conf.json' % name)    
+        bidders_config_base_path, '%s.conf.json' % name)
     try :
         conf_file = open(conf_file_name, 'w')
         conf_file.write(json.dumps(request.json))
@@ -131,7 +131,7 @@ def start_bidder(name):
     except :
         result['resultCode'] = 6
         result['resultDescription'] = 'unable to create config file'
-        raise HTTPResponse(body=json.dumps(result), status=500, 
+        raise HTTPResponse(body=json.dumps(result), status=500,
                 Content_Type='application/json')
 
     logger.info('bringing up bidder %s=%s' % (name, bidder))
@@ -139,16 +139,18 @@ def start_bidder(name):
     arguments = []
     for k,v in bidder['params'].iteritems() :
         arguments.append('-%s' % k)
-        arguments.append(v)    
- 
+        arguments.append(v)
+
     exe = ['nohup']
     exe.append('./%s' % bidder['executable'])
     exe.extend(arguments)
     exe.append('-f')
     exe.append(conf_file_name)
+    exe.append('-u')
+    exe.append(name)
     exe.append('&')
     logger.info('executing : %s' % ' '.join(exe))
-    
+
     # check the log file
     log_file_name = 'agent_%s_%s.log' % (name, time.strftime('%d.%m.%Y_%H.%M.%S'))
     log_path = os.path.join(log_base_path, log_file_name)
@@ -158,22 +160,22 @@ def start_bidder(name):
             os.path.join(log_base_path, 'agent_%s.log' % name))
     except :
         pass
-    os.symlink(log_file_name, 
+    os.symlink(log_file_name,
             os.path.join(log_base_path, 'agent_%s.log' % name))
 
     log_file = open(log_path, 'w')
-    # bring the process up    
-    try :     
+    # bring the process up
+    try :
         proc = subprocess.Popen(
-            ' '.join(exe), 
-            cwd=exec_base_path,        
-            shell=True, 
+            ' '.join(exe),
+            cwd=exec_base_path,
+            shell=True,
             close_fds=True,
             stdout=log_file)
     except :
         result['resultCode'] = 3
         result['resultDescription'] = 'error executing agent'
-        raise HTTPResponse(body=json.dumps(result), status=500, 
+        raise HTTPResponse(body=json.dumps(result), status=500,
                 Content_Type='application/json')
 
     # read the pid, the one that proc returns belongs to the shell
@@ -192,8 +194,8 @@ def start_bidder(name):
         logger.error('unable to find pid, are you printing it?')
         result['resultCode'] = 4
         result['resultDescription'] = 'unable to find pid, are you printing it?'
-        raise HTTPResponse(body=json.dumps(result), status=500, 
-                Content_Type='application/json')    
+        raise HTTPResponse(body=json.dumps(result), status=500,
+                Content_Type='application/json')
     # check if the pid still exists, sometimes a bidder starts and aborts
     # right away.
     if not os.path.exists('/proc/%d' % pid):
@@ -201,35 +203,35 @@ def start_bidder(name):
         logger.error('did the process aborted?')
         result['resultCode'] = 5
         result['resultDescription'] = 'process id %d lost' % pid
-        raise HTTPResponse(body=json.dumps(result), status=500, 
+        raise HTTPResponse(body=json.dumps(result), status=500,
                 Content_Type='application/json')
-     
+
     # save the pid for the new bidder
     bidder['pid']  = pid
-    logger.info('pid is : %d' % int(pid)) 
+    logger.info('pid is : %d' % int(pid))
     # the key stored by the agent configuration service
     # is a concatenation of the bidder name passed and the
-    # pid for for process 
+    # pid for for process
     bidder['agent_conf_name'] = \
         '%s_%s' % (name, bidder['pid'])
     logger.info('bidder %s got pid %d' % (name, bidder['pid']))
-    
-    # save it    
+
+    # save it
     bidders[name] = bidder
     # great, let's pickle the data
-    try :    
-        f = open(os.path.join(pickle_path, str(bidders[name]['pid'])), 'wb')    
+    try :
+        f = open(os.path.join(pickle_path, str(bidders[name]['pid'])), 'wb')
         pickle.dump(bidders[name], f)
         f.close()
     except :
         result['resultCode'] = 2
         result['resultDescription'] = 'unable to pickle configuration'
-        raise HTTPResponse(body=json.dumps(result), status=500, 
+        raise HTTPResponse(body=json.dumps(result), status=500,
                 Content_Type='application/json')
 
     result['pid'] = int(pid)
     return result
-    
+
 
 @app.post('/v1/agents/<name>/stop')
 def stop_bidder(name):
@@ -243,8 +245,8 @@ def stop_bidder(name):
 
     if name not in bidders :
         result['resultCode'] = 1
-        result['resultDescription'] = 'bidder not running'    
-        raise HTTPResponse(body=json.dumps(result), status=404, 
+        result['resultDescription'] = 'bidder not running'
+        raise HTTPResponse(body=json.dumps(result), status=404,
                 Content_Type='application/json')
 
     logger.info('stopping bidder %s=%s' % (name, bidders[name]))
@@ -258,13 +260,13 @@ def stop_bidder(name):
         logger.info('signal %d sent to process with pid %d' % (signal, pid))
     except :
         result['resultCode'] = 2
-        result['resultDescription'] = 'unable to kill process %s' % pid    
-        raise HTTPResponse(body=json.dumps(result), status=500, 
+        result['resultDescription'] = 'unable to kill process %s' % pid
+        raise HTTPResponse(body=json.dumps(result), status=500,
                 Content_Type='application/json')
 
     logger.info('agent %s with pid %d stopped' % (name, pid))
-    
-    # clean up     
+
+    # clean up
     del bidders[name]
     try :
         os.remove(os.path.join(pickle_path, str(pid)))
@@ -273,8 +275,8 @@ def stop_bidder(name):
             'resultCode'        :   3,
             'resultDescription' :   'unable to delete pickled data'
         }
-        raise HTTPResponse(body=json.dumps(result), status=500, 
-                Content_Type='application/json')    
+        raise HTTPResponse(body=json.dumps(result), status=500,
+                Content_Type='application/json')
     return result
 
 @app.get('/v1/agents/<name>/status')
@@ -288,7 +290,7 @@ def get_status(name):
     }
 
     if not name in bidders:
-        raise HTTPResponse(body=json.dumps(result), status=404, 
+        raise HTTPResponse(body=json.dumps(result), status=404,
                 Content_Type='application/json')
 
     pid = bidders[name]['pid']
@@ -303,11 +305,11 @@ def get_status(name):
         del bidders[name]
         result['resultCode'] = 2
         result['resultDescription'] = 'process id %d lost' % pid
-        raise HTTPResponse(body=json.dumps(result), status=500, 
+        raise HTTPResponse(body=json.dumps(result), status=500,
                 Content_Type='application/json')
 
     result['resultCode'] = 0
-    result['resultDescription'] = 'up'    
+    result['resultDescription'] = 'up'
     return result
 
 
@@ -322,7 +324,7 @@ class application:
         '''
         self.app = app
 
-        # load configuration 
+        # load configuration
         self.config = ConfigParser.ConfigParser()
         self.config.read(config_file)
 
@@ -335,7 +337,7 @@ class application:
         GATEWAY_IP = self.config.get('global', 'GATEWAY_IP')
         GATEWAY_PORT = int(self.config.get('global', 'GATEWAY_PORT'))
         BASE_PATH = self.config.get('global', 'BASE_PATH')
-    
+
         logger.warning('AGENT_CONFIG_SERVER: %s' % AGENT_CONFIG_SERVER)
         logger.warning('GATEWAY_IP: %s' % GATEWAY_IP)
         logger.warning('GATEWAY_PORT: %d' % GATEWAY_PORT)
@@ -364,15 +366,12 @@ class application:
             f = open(os.path.join(pickle_path, config), 'rb')
             c = pickle.load(f)
             bidders[c['bidder_name']] = c
-            f.close() 
+            f.close()
             logger.warning('loaded agent %s=%s' % (c['bidder_name'], c))
 
     def run(self):
         '''
             run the development bottle server
         '''
-        logger.warning('starting up server')    
+        logger.warning('starting up server')
         run(self.app, host=GATEWAY_IP, port=GATEWAY_PORT, reloader=False)
-
-    
-
