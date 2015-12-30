@@ -128,9 +128,19 @@ def start_bidder(name):
         conf_file = open(conf_file_name, 'w')
         conf_file.write(json.dumps(request.json))
         conf_file.close()
+    except IOError as e:
+        result['resultCode'] = 6
+        result['resultDescription'] = 'unable to create config file: {0}'.format(e.strerror)
+        raise HTTPResponse(body=json.dumps(result), status=500,
+                Content_Type='application/json')
+    except ValueError as e:
+        result['resultCode'] = 6
+        result['resultDescription'] = 'unable to create config file with JSON error: {0}'.format(str(e))
+        raise HTTPResponse(body=json.dumps(result), status=500,
+                Content_Type='application/json')
     except :
         result['resultCode'] = 6
-        result['resultDescription'] = 'unable to create config file'
+        result['resultDescription'] = 'unable to create config file with unexpected error: {0}'.format(sys.exc_info()[0])
         raise HTTPResponse(body=json.dumps(result), status=500,
                 Content_Type='application/json')
 
@@ -174,7 +184,7 @@ def start_bidder(name):
             stdout=log_file)
     except :
         result['resultCode'] = 3
-        result['resultDescription'] = 'error executing agent'
+        result['resultDescription'] = 'error executing agent: {0}'.format(sys.exc_info()[0])
         raise HTTPResponse(body=json.dumps(result), status=500,
                 Content_Type='application/json')
 
@@ -273,7 +283,7 @@ def stop_bidder(name):
     except :
         result = {
             'resultCode'        :   3,
-            'resultDescription' :   'unable to delete pickled data'
+            'resultDescription' :   'unable to delete pickled data: {0}'.format(sys.exc_info()[0])
         }
         raise HTTPResponse(body=json.dumps(result), status=500,
                 Content_Type='application/json')
