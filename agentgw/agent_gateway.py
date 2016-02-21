@@ -8,6 +8,7 @@ import re
 import time
 import json
 import ConfigParser
+import urllib2
 
 from bottle import Bottle, run, urljoin, HTTPResponse, request
 
@@ -58,6 +59,7 @@ def map_and_redirect(uri, name):
                 Content_Type='application/json')
     raise HTTPResponse("", status=302, Location=location)
 
+
 @app.get('/v1/agents')
 def get_agents():
     """
@@ -65,14 +67,43 @@ def get_agents():
     """
     return '%s\n' % bidders.keys()
 
+@app.get('/v1/agents/config')
+def get_agents_config():
+    bidders_list = bidders.keys()
+    
+    bidders_combo = ""
+    for name in bidders_list:
+        bidders_combo = bidders_combo + '<option value="' + name + '">' + name + '</option>'
+    
+    return '<html><head><meta charset="UTF-8"><title>RTBKit Gateway Agents Management</title><script src="http://code.jquery.com/jquery-1.9.0.min.js" type="text/javascript"></script><script type="text/javascript">var agentConfig="";$(document).ready(function (){$("#getConfigBtn").click(function(){if($("#agentsList").val()){$.ajax({type: "post",url: "/v1/agents/" + $("#agentsList").val() + "/config",contentType:"application/json; charset=utf-8",dataType: "json",success: function(data){agentConfig=data; $("#requestJson").val(JSON.stringify(data, null, 2));}});}});$("#updateBtn").click(function() {if($("#agentsList").val() && $("#requestJson").val() && agentConfig != "") {$.ajax({type: "post",url: "/v1/agents/" + $("#agentsList").val() + "/restart?executable=basic_bidding_agent&N=eui1.rtb1." + agentConfig.account[0] + $("#agentsList").val() + "&B=/home/rtbkit/prod/rtb/configs/bootstrap.eui1.json",contentType: "application/json;charset=utf-8",dataType: "json",data: $("#requestJson").val(),success: function (data) {}});}});});</script></head><body><select id="agentsList">' + bidders_combo + '</select>&nbsp;&nbsp;<button id="getConfigBtn">Get Config</button><br/><br/><label for="requestJson">Request JSON</label> <br/><textarea id="requestJson" rows="40" cols="120"></textarea><br/><br/><button id="updateBtn">Update</button></body></html>'
+
+@app.post('/v1/agents/<name>/restart')
+def restart_bidder(name):
+    """
+        restarts a given agent
+    """
+    stop_bidder(name)
+    result = start_bidder(name)
+    return result
+
 @app.post('/v1/agents/<name>/config')
 @app.get('/v1/agents/<name>/config')
 def get_config(name):
     """
         redirects the call to the agent configuration service
         on /v1/agents/<name>/config for the given name
-    """
+    
     return map_and_redirect('/v1/agents/%s/config', name)
+    """
+    proxy_support = urllib2.ProxyHandler({})
+    opener = urllib2.build_opener(proxy_support)
+    location = urljoin(
+        AGENT_CONFIG_SERVER,
+        '/v1/agents/%s/config' % bidders[name]['agent_conf_name'])
+    logger.info('bringing up bidder config from: %s' % location)
+    res = opener.open(location)
+    data = res.read()
+    raise HTTPResponse(data, status=200, Content_Type='application/json')
 
 @app.post('/v1/agents/<name>/heartbeat')
 def heartbeat(name):
