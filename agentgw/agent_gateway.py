@@ -72,17 +72,21 @@ def get_agents_config():
     bidders_list = bidders.keys()
     
     bidders_combo = ""
-    bidder_title = "US West Agents Management"
-    account_title = "uswest1e"
+    bidder_title = "US East LR Agents Management"
+    account_title = "useastlr1e"
     for name in bidders_list:
         bidders_combo = bidders_combo + '<option value="' + name + '">' + name + '</option>'
-    return '<html><head><meta charset="UTF-8"><title>' + bidder_title + ' RTBKit</title><style>.animate{transition:all 0.1s;-webkit-transition:all 0.1s;}.action-button{position:relative;margin:0px 10px 10px 0px;border-radius:5px;font-size:15px;color:#FFF;text-decoration:none;}.blue{background-color:#3498DB;border-bottom:5px solid #2980B9;text-shadow:0px -2px #2980B9;}.red{background-color:#E74C3C;border-bottom:5px solid #BD3E31;text-shadow:0px -2px #BD3E31;}.green{background-color:#82BF56;border-bottom:5px solid #669644;text-shadow:0px -2px #669644;}.yellow{background-color:#F2CF66;border-bottom:5px solid #D1B358;text-shadow:0px -2px #D1B358;}.action-button:active{transform:translate(0px,5px);-webkit-transform:translate(0px,5px);border-bottom:1px solid;}</style><script src="http://code.jquery.com/jquery-1.9.0.min.js" type="text/javascript"></script><script type="text/javascript">var agentConfig="";$(document).ready(function(){$("#getConfigBtn").click(function(){if($("#agentsList").val()){$.ajax({type:"post",url:"/v1/agents/" + $("#agentsList").val() + "/config",contentType:"application/json;charset=utf-8",dataType:"json",success: function(data){agentConfig=data; $("#requestJson").val(JSON.stringify(data,null, 2));}});}});$("#restartBtn").click(function(){if($("#agentsList").val()){$.ajax({type: "post",url: "/v1/agents/" + $("#agentsList").val() + "/config",contentType:"application/json; charset=utf-8",dataType: "json",success: function(data){agentConfig=data;$.ajax({type: "post",url: "/v1/agents/" + $("#agentsList").val() + "/restart?executable=basic_bidding_agent&N=' + account_title + '.rtb1." + agentConfig.account[0] + $("#agentsList").val() + "&B=/home/rtbkit/prod/rtb/configs/bootstrap.' + account_title + '.json",contentType: "application/json;charset=utf-8",dataType: "json",data: JSON.stringify(data, null, 2),success: function () {alert("Restart has been succeeded!");}});}});}});$("#updateBtn").click(function() {if($("#agentsList").val() && $("#requestJson").val() && agentConfig != "") {$.ajax({type: "post",url: "/v1/agents/" + $("#agentsList").val() + "/restart?executable=basic_bidding_agent&N=' + account_title + '.rtb1." + agentConfig.account[0] + $("#agentsList").val() + "&B=/home/rtbkit/prod/rtb/configs/bootstrap.' + account_title + '.json",contentType: "application/json;charset=utf-8",dataType: "json",data: $("#requestJson").val(),success: function (data) {}});}});$("#stopBtn").click(function() {if ($("#agentsList").val()) {$.ajax({type: "post",url: "/v1/agents/" + $("#agentsList").val() + "/stop?signal=15",contentType: "application/json; charset=utf-8",dataType: "json",data: {},success: function(data) {agentConfig = data;$("#requestJson").val(JSON.stringify(data, null, 2));}});}});});</script></head><body><center><h1>' + bidder_title + '</h1></center><select id="agentsList">' + bidders_combo + '</select>&nbsp;&nbsp;<button id="getConfigBtn" class="action-button animate blue">Get Config</button>&nbsp;&nbsp;<button id="stopBtn" class="action-button animate red">Stop</button>&nbsp;&nbsp;<button id="restartBtn" class="action-button animate yellow">Restart</button><br/><br/><label for="requestJson">Request JSON</label> <br/><textarea id="requestJson" rows="40" cols="120"></textarea><br/><br/><button id="updateBtn" class="action-button animate green">Update</button></body></html>'
+    return '<html><head><meta charset="UTF-8"><title>' + bidder_title + ' RTBKit</title><style>.animate{transition:all 0.1s;-webkit-transition:all 0.1s;}.action-button{position:relative;margin:0px 10px 10px 0px;border-radius:5px;font-size:15px;color:#FFF;text-decoration:none;}.blue{background-color:#3498DB;border-bottom:5px solid #2980B9;text-shadow:0px -2px #2980B9;}.red{background-color:#E74C3C;border-bottom:5px solid #BD3E31;text-shadow:0px -2px #BD3E31;}.green{background-color:#82BF56;border-bottom:5px solid #669644;text-shadow:0px -2px #669644;}.yellow{background-color:#F2CF66;border-bottom:5px solid #D1B358;text-shadow:0px -2px #D1B358;}.action-button:active{transform:translate(0px,5px);-webkit-transform:translate(0px,5px);border-bottom:1px solid;}</style><script src="http://code.jquery.com/jquery-1.9.0.min.js" type="text/javascript"></script><script type="text/javascript">var agentConfig="";$(document).ready(function(){$("#getConfigBtn").click(function(){if($("#agentsList").val()){$.ajax({type:"post",url:"/v1/agents/" + $("#agentsList").val() + "/config",contentType:"application/json;charset=utf-8",dataType:"json",success: function(data){agentConfig=data; $("#requestJson").val(JSON.stringify(data,null, 2));}});}});$("#restartBtn").click(function(){if($("#agentsList").val()){$.ajax({type: "post",url: "/v1/agents/" + $("#agentsList").val() + "/config",contentType:"application/json; charset=utf-8",dataType: "json",success: function(data){agentConfig=data;$.ajax({type: "post",url: "/v1/agents/" + $("#agentsList").val() + "/restart?executable=basic_bidding_agent&N=' + account_title + '.rtb1." + agentConfig.account[0] + $("#agentsList").val() + "&B=/home/rtbkit/prod/rtb/configs/bootstrap.' + account_title + '.json",contentType: "application/json;charset=utf-8",dataType: "json",data: JSON.stringify(data, null, 2),success: function () {alert("Restart has been succeeded!");}});}});}});$("#updateBtn").click(function() {if($("#agentsList").val() && $("#requestJson").val() && agentConfig != "") {$.ajax({type: "post",url: "/v1/agents/" + $("#agentsList").val() + "/restart?executable=basic_bidding_agent&N=' + account_title + '.rtb1." + agentConfig.account[0] + $("#agentsList").val() + "&B=/home/rtbkit/prod/rtb/configs/bootstrap.' + account_title + '.json",contentType: "application/json;charset=utf-8",dataType: "json",data: $("#requestJson").val(),success: function (data) {alert("Update has been succeeded!");},error: function(jqXHR){try{alert($.parseJSON(jqXHR.responseText).resultDescription);}catch(e){}}});}});$("#stopBtn").click(function() {if ($("#agentsList").val()) {$.ajax({type: "post",url: "/v1/agents/" + $("#agentsList").val() + "/stop?signal=15",contentType: "application/json; charset=utf-8",dataType: "json",data: {},success: function(data) {agentConfig = data;$("#requestJson").val(JSON.stringify(data, null, 2));}});}});});</script></head><body><center><h1>' + bidder_title + '</h1></center><select id="agentsList">' + bidders_combo + '</select>&nbsp;&nbsp;<button id="getConfigBtn" class="action-button animate blue">Get Config</button>&nbsp;&nbsp;<button id="stopBtn" class="action-button animate red">Stop</button>&nbsp;&nbsp;<button id="restartBtn" class="action-button animate yellow">Restart</button><br/><br/><label for="requestJson">Request JSON</label> <br/><textarea id="requestJson" rows="40" cols="120"></textarea><br/><br/><button id="updateBtn" class="action-button animate green">Update</button></body></html>'
 
 @app.post('/v1/agents/<name>/restart')
 def restart_bidder(name):
     """
         restarts a given agent
     """
+    result = {
+            'resultCode'        :   0,
+            'resultDescription' :   'ok'
+    }
     # make a copy of the json configuration file
     conf_file_name = os.path.join(bidders_config_base_path, '%s.conf.json' % name)
     try :
@@ -96,14 +100,57 @@ def restart_bidder(name):
     new_conf_file_name = os.path.join(bidders_config_base_path, '%s_%s.conf.json' % (name, time.strftime('%d.%m.%Y_%H.%M.%S')))
     try :
         shutil.copyfile(conf_file_name, new_conf_file_name)
+        if request.json:
+            request_body = request.json
+            logger.info('Request body JSON is valid!')
     except IOError as e:
         result['resultCode'] = 6
         result['resultDescription'] = 'unable to copy config file: {0}'.format(e.strerror)
+        raise HTTPResponse(body=json.dumps(result), status=500, Content_Type='application/json')
+    except :
+        result['resultCode'] = 6
+        result['resultDescription'] = 'Invalid JSON request'
         raise HTTPResponse(body=json.dumps(result), status=500, Content_Type='application/json')
 
     stop_bidder(name)
     result = start_bidder(name)
     return result
+
+@app.get('/v1/agents/<name>/account')
+def get_account(name):
+    """
+        redirects the call to the agent configuration service
+        on /v1/agents/<name>/copnfig for the given name
+
+    return map_and_redirect('/v1/agents/%s/', name)
+    """
+    #bidders_list = bidders.keys()
+    #name = bidders_list[0]
+    result = {
+        'resultCode'        :   1,
+        'resultDescription' :   'down'
+    }
+
+
+    account_name = ""
+    proxy_support = urllib2.ProxyHandler({})
+    opener = urllib2.build_opener(proxy_support)
+    location = urljoin(
+        AGENT_CONFIG_SERVER,
+        '/v1/agents/%s/config' % bidders[name]['agent_conf_name'])
+    logger.info('bringing up bidder config from: %s' % location)
+    res = opener.open(location)
+    try :
+        data = res.read()
+        logger.info('get_account :: config file: %s' % data)
+        conf_json = json.loads(data)
+        account_name = conf_json["account"][0]
+    except :
+        result['resultCode'] = 6
+        result['resultDescription'] = 'unable to get config file with unexpected error'
+        raise HTTPResponse(body=json.dumps(result), status=500,Content_Type='application/json')
+
+    raise HTTPResponse(account_name, status=200, Content_Type='text/plain')
 
 @app.post('/v1/agents/<name>/config')
 @app.get('/v1/agents/<name>/config')
